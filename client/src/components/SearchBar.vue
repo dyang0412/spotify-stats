@@ -1,0 +1,287 @@
+<template>
+    <div class="search-bar">
+        <div id="header" class="row">
+            <div class="col-md-12 text-center">
+                <h3>Spotify Stats <ion-icon name="stats"></ion-icon></h3>
+                <p>All data provided by Spotify</p>
+            </div>
+        </div>
+        <div id="input" class="row">
+            <div class="col-md-12 text-center">
+                <div class="form-group">
+                    <div class="input-group pt-3 mb-3">
+                        <label for="inp" class="inp">
+                            <input type="text" id="inp" placeholder="&nbsp;" @keyup.enter="onSubmit" v-model="query">
+                            <span class="label">Search for a track</span>
+                            <span class="border"></span>
+                        </label>
+                        <button @click="onSubmit" class="btn btn-outline-success w-75">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="search-results" class="row custom-scrollbar">
+            <div class="col-md-12">
+                <div class="row pb-2 pt-2 border-bottom border-light" v-for="(track,index) in results" :key="index">
+                    <div class="col-md-3 p-0">
+                        <img :src="track.album.images[2].url">
+                    </div>
+                    <div class="col-md-9">
+                        <p>{{track.name}}</p>
+                        <p id="album">{{track.album.name}}</p>
+                        <ul id="artistlist"><li v-for="(artist, i) in track.artists" :key="i" class="artist">{{track.artists[i].name}}</li></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import axios from 'axios';
+export default {
+    data() {
+        return {
+            token: 'no token',
+            query: '',
+            results: []
+        }
+    },
+    methods: {
+        getToken() {
+            const path = 'http://localhost:5000/auth';
+            axios.get(path)
+                .then((res) => {
+                    this.token = res.data.access_token;
+                    console.log('Access Token: ' + this.token)
+                })
+                .catch((error) => {
+                // eslint-disable-next-line
+                console.error(error);
+            });
+        },
+        search(payload) {
+            const path = 'http://localhost:5000/search';
+            axios.post(path, payload)
+                .then((res) => {
+                    console.log('Query Sent: ' + this.query)
+                    console.log(res.data)
+                    this.results = res.data.tracks.items;
+                })
+                .catch((error) => {
+                // eslint-disable-next-line
+                console.log(error);
+            });
+        },
+        onSubmit(evt) {
+            evt.preventDefault();
+            const payload = {
+                trackname: this.query,
+                token: this.token
+            };
+            this.search(payload);
+            },
+        },
+    created(){
+        this.getToken();   
+    }
+}
+
+
+</script>
+
+<style scoped>
+    *:focus {
+        outline: none;
+    }
+
+    p{
+        color: #fff;
+        margin: 0;
+        font-size: 15px;
+    }
+
+    #artistlist{
+        list-style: none;
+        padding: 0;
+    }
+
+    .artist{
+        font-size: 12px;
+        float: left;
+        color: #fff;
+    }
+
+    .artist::after{
+        content: ', ';
+        white-space: pre;
+    }
+
+    .artist:last-child::after{
+        content: ''
+    }
+
+    #album{
+        font-size: 12px;
+        color: rgb(156, 156, 156);
+    }
+
+    .search-bar{
+        height: 100%;
+        width:300px;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: rgb(36, 36, 36);
+        overflow-x: hidden;
+
+    }
+    
+    .row{
+        width: 100%;
+        margin: 0;
+    }
+
+    #header{
+        background-color: rgb(54, 199, 110);
+        padding-top: 10px;
+    }
+
+
+    #header p{
+        font-size: 12px;
+        margin: 0;
+        padding-bottom: 5px;
+        color: #fff;
+    }
+
+    button{
+        color: rgb(54, 199, 110);
+        border-color: rgb(54, 199, 110);
+        margin: auto;
+        margin-top: 10px;
+    }
+
+    #search-results{
+        height: 75vh;
+        overflow-y: scroll;
+    }
+
+    #search-results .col-md-12{
+        height: 100%;
+    }
+
+    .border-light{
+        border-color: rgb(83, 83, 83)!important;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background : rgb(36, 36, 36);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background : rgba(77, 77, 77, 0.5);
+        border-radius: 10px;
+        box-shadow:  0 0 6px rgba(0, 0, 0, 0.5);
+    }
+
+    ion-icon{
+        font-size: 30px;
+        vertical-align:top
+    }
+
+    html,
+
+    body {
+        height: 100%;
+    }
+    body {
+        display: grid;
+        -webkit-text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+    }
+    * {
+        box-sizing: border-box;
+    }
+    .inp {
+        position: relative;
+        margin: auto;
+        width: 100%;
+        max-width: 280px;
+    }
+    .inp .label {
+        position: absolute;
+        top: 16px;
+        left: 0;
+        font-size: 16px;
+        color: #9098a9;
+        font-weight: 500;
+        transform-origin: 0 0;
+        transition: all 0.2s ease;
+        cursor: text;
+    }
+    .inp .border {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        width: 100%;
+        background: rgb(54, 199, 110);
+        transform: scaleX(0);
+        transform-origin: 0 0;
+        transition: all 0.15s ease;
+    }
+    .inp input {
+        -webkit-appearance: none;
+        width: 100%;
+        border: 0;
+        font-family: inherit;
+        padding: 12px 0;
+        height: 48px;
+        font-size: 16px;
+        font-weight: 500;
+        border-bottom: 2px solid #c8ccd4;
+        background: none;
+        border-radius: 0;
+        color: #fff;
+        transition: all 0.15s ease;
+    }
+    .inp input:hover {
+        background: rgba(34,50,84,0.03);
+    }
+    .inp input:not(:placeholder-shown) + span {
+        color: rgb(54, 199, 110);
+        transform: translateY(-26px) scale(0.75);
+    }
+    .inp input:focus {
+        background: none;
+        outline: none;
+    }
+    .inp input:focus + span {
+        color: rgb(54, 199, 110);;
+        transform: translateY(-26px) scale(0.75);
+    }
+        .inp input:focus + span + .border {
+        transform: scaleX(1);
+    }
+
+    ::-webkit-input-placeholder { /* WebKit browsers */
+        color: transparent;
+    }
+    :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+        color:    transparent;
+        opacity:  1;
+    }
+    ::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color:    transparent;
+        opacity:  1;
+    }
+    :-ms-input-placeholder { /* Internet Explorer 10+ */
+        color:    transparent;
+    }
+            
+</style>
