@@ -22,14 +22,17 @@
         </div>
         <div id="search-results" class="row custom-scrollbar">
             <div class="col-md-12">
-                <div class="row pb-2 pt-2 border-bottom border-light" v-for="(track,index) in results" :key="index">
-                    <div class="col-md-3 p-0">
+                <div class="row pb-2 pt-2 border-bottom border-light trackResult" 
+                    v-for="(track,index) in results" 
+                    :key="index" 
+                    @click="onSongSelect(track,track.id, track.artists[0].id, track.artists[0].name, track.album.id, track.album.images[1].url)">
+                    <div class="col-md-3 pl-2">
                         <img :src="track.album.images[2].url">
                     </div>
                     <div class="col-md-9">
                         <p>{{track.name}}</p>
                         <p id="album">{{track.album.name}}</p>
-                        <ul id="artistlist"><li v-for="(artist, i) in track.artists" :key="i" class="artist">{{track.artists[i].name}}</li></ul>
+                        <ul id="artistlist"><li v-for="(artist, i) in track.artists" :key="i" class="artist">{{artist.name}}</li></ul>
                     </div>
                 </div>
             </div>
@@ -80,8 +83,69 @@ export default {
                 token: this.token
             };
             this.search(payload);
-            },
         },
+
+        onSongSelect(track, trackid, artistid, artistname, albumid, albumurl){
+            // Get Track Info
+            this.$emit('gotTrack', track)
+            this.$emit('gotAlbumImg', albumurl)
+            console.log('Track ID: ' + trackid);
+            const trackpath1 = 'http://localhost:5000/get-trackAnal';
+            console.log('Looking up track...')
+            const trackpayload1 = { trackID: trackid, token: this.token}
+            axios.post(trackpath1, trackpayload1)
+                .then((res) => {
+                    this.$emit('gotTrackAnal', res.data)
+                    console.log(res.data)
+                })
+                .catch((error) => {
+                console.log(error);
+            });
+
+            const trackpath2 = 'http://localhost:5000/get-trackFeatures';
+            console.log('Looking up track features...')
+            const trackpayload2 = { trackID: trackid, token: this.token}
+            axios.post(trackpath2, trackpayload2)
+                .then((res) => {
+                    this.$emit('gotTrackFeatures', res.data)
+                    console.log(res.data)
+                })
+                .catch((error) => {
+                console.log(error);
+            });
+
+            //Get Artist Info
+
+            const artistpath = 'http://localhost:5000/get-artist';
+            console.log('Looking up artist...')
+            const artistpayload = { artistID: artistid, token: this.token}
+            axios.post(artistpath, artistpayload)
+                .then((res) => {
+                    this.$emit('gotArtist', res.data)
+                    console.log(res.data)
+                })
+                .catch((error) => {
+                console.log(error);
+            });
+
+            //Get Album Info
+
+            const albumpath = 'http://localhost:5000/get-album';
+            console.log('Looking up album...')
+            const albumpayload = { albumID: albumid, token: this.token}
+            axios.post(albumpath, albumpayload)
+                .then((res) => {
+                    this.$emit('gotAlbum',res.data)
+                    console.log(res.data)
+                })
+                .catch((error) => {
+                console.log(error);
+            });
+
+            this.$emit('createChart');
+        }
+    },
+        
     created(){
         this.getToken();   
     }
@@ -170,6 +234,15 @@ export default {
 
     #search-results .col-md-12{
         height: 100%;
+    }
+
+    .trackResult{
+        cursor: pointer;
+    }
+
+    .trackResult:hover{
+        background-color: rgb(51, 51, 51);
+        filter: alpha(opacity=100)
     }
 
     .border-light{

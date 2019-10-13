@@ -34,6 +34,10 @@ CLIENT_SECRET = 'e772350d49134d6e86309bfa4b289fe1'
 # Spotify API endpoints
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search'
+TRACK_ANAL_ENDPOINT = 'https://api.spotify.com/v1/audio-analysis'
+TRACK_FEATURES_ENDPOINT = 'https://api.spotify.com/v1/audio-features'
+ALBUM_ENDPOINT = 'https://api.spotify.com/v1/albums'
+ARTIST_ENDPOINT = 'https://api.spotify.com/v1/artists'
 # Start 'er up
 app = Flask(__name__)
 SECRET_KEY = "changeme"
@@ -72,7 +76,7 @@ def auth():
 
 
 
-def _query_track(trackname=None, token=None):
+def _query_search(trackname=None, token=None):
     '''Make request for data on `artist`.'''
 
     if trackname is None:
@@ -85,22 +89,73 @@ def _query_track(trackname=None, token=None):
         'Accept': 'application/json',
         'Content-Type': 'application/json',
     }
-
     return requests.get(SEARCH_ENDPOINT, params=payload, headers=headers)
+
+
+def _query_trackAnal(trackid=None, token=None):
+    if trackid is None:
+        return trackid
+
+    print(session.get('access_token'))
+    payload = trackid
+    headers = {
+        'Authorization': f"Bearer {token}",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+    }
+    return requests.get(TRACK_ANAL_ENDPOINT+'/'+payload, headers=headers)
+
+def _query_trackFeatures(trackid=None, token=None):
+    if trackid is None:
+        return trackid
+
+    print(session.get('access_token'))
+    payload = trackid
+    headers = {
+        'Authorization': f"Bearer {token}",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+    }
+    return requests.get(TRACK_FEATURES_ENDPOINT+'/'+payload, headers=headers)
+
+def _query_album(albumid=None, token=None):
+    if albumid is None:
+        return albumid
+
+    print(session.get('access_token'))
+    payload = albumid
+    headers = {
+        'Authorization': f"Bearer {token}",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+    }
+    return requests.get(ALBUM_ENDPOINT+'/'+payload, headers=headers)
+
+def _query_artist(artistid=None, token=None):
+    if artistid is None:
+        return artistid
+
+    print(session.get('access_token'))
+    payload = artistid
+    headers = {
+        'Authorization': f"Bearer {token}",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+    }
+    return requests.get(ARTIST_ENDPOINT+'/'+payload, headers=headers)
 
 
 @app.route('/search', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
 def search():
-    '''Simple example search for an artist.'''
-
+    '''Simple example search for a track.'''
     if request.method == 'POST':
         data = request.get_json()
         trackname = data.get('trackname')
         token = data.get('token')
         #artist = request.form.get('artist')
         if trackname:
-            res = _query_track(trackname,token)
+            res = _query_search(trackname,token)
             res_data = res.json()
 
             if res_data.get('error') or res.status_code != 200:
@@ -110,6 +165,85 @@ def search():
                 #print(json.dumps(res_data))
                 return res_data
 
+        else:
+            abort(400)
+
+
+@app.route('/get-trackAnal', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def getTrack():
+    if request.method == 'POST':
+        data = request.get_json()
+        trackID = data.get('trackID')
+        token = data.get('token')
+        #artist = request.form.get('artist')
+        if trackID:
+            res = _query_trackAnal(trackID,token)
+            res_data = res.json()
+            if res_data.get('error') or res.status_code != 200:
+                abort(400)
+            else:
+                #print(json.dumps(res_data))
+                return res_data
+        else:
+            abort(400)
+
+
+@app.route('/get-trackFeatures', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def getTrackFeatures():
+    if request.method == 'POST':
+        data = request.get_json()
+        trackID = data.get('trackID')
+        token = data.get('token')
+        #artist = request.form.get('artist')
+        if trackID:
+            res = _query_trackFeatures(trackID,token)
+            res_data = res.json()
+            if res_data.get('error') or res.status_code != 200:
+                abort(400)
+            else:
+                #print(json.dumps(res_data))
+                return res_data
+        else:
+            abort(400)
+
+@app.route('/get-album', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def getAlbum():
+    if request.method == 'POST':
+        data = request.get_json()
+        albumID = data.get('albumID')
+        token = data.get('token')
+        #artist = request.form.get('artist')
+        if albumID:
+            res = _query_album(albumID,token)
+            res_data = res.json()
+            if res_data.get('error') or res.status_code != 200:
+                abort(400)
+            else:
+                #print(json.dumps(res_data))
+                return res_data
+        else:
+            abort(400)
+
+@app.route('/get-artist', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def getArtist():
+    '''Simple example search for a track.'''
+    if request.method == 'POST':
+        data = request.get_json()
+        artistID = data.get('artistID')
+        token = data.get('token')
+        #artist = request.form.get('artist')
+        if artistID:
+            res = _query_artist(artistID,token)
+            res_data = res.json()
+            if res_data.get('error') or res.status_code != 200:
+                abort(400)
+            else:
+                #print(json.dumps(res_data))
+                return res_data
         else:
             abort(400)
 

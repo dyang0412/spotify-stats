@@ -33,8 +33,5 @@ export default {
     -webkit-font-smoothing: antialiased
   }
 
-  h3{
-    font-weight: 700;
-  }
 
 </style>
