@@ -144,6 +144,18 @@ def _query_artist(artistid=None, token=None):
     }
     return requests.get(ARTIST_ENDPOINT+'/'+payload, headers=headers)
 
+def _query_artistTopTracks(artistid=None, token=None):
+    if artistid is None:
+        return artistid
+
+    print(session.get('access_token'))
+    payload = artistid
+    headers = {
+        'Authorization': f"Bearer {token}",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+    }
+    return requests.get(ARTIST_ENDPOINT+'/'+payload+'/top-tracks', params={'country':'US'}, headers=headers)
 
 @app.route('/search', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
@@ -238,6 +250,26 @@ def getArtist():
         #artist = request.form.get('artist')
         if artistID:
             res = _query_artist(artistID,token)
+            res_data = res.json()
+            if res_data.get('error') or res.status_code != 200:
+                abort(400)
+            else:
+                #print(json.dumps(res_data))
+                return res_data
+        else:
+            abort(400)
+
+@app.route('/get-artistTopTracks', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def getArtistTopTracks():
+    '''Simple example search for a track.'''
+    if request.method == 'POST':
+        data = request.get_json()
+        artistID = data.get('artistID')
+        token = data.get('token')
+        #artist = request.form.get('artist')
+        if artistID:
+            res = _query_artistTopTracks(artistID,token)
             res_data = res.json()
             if res_data.get('error') or res.status_code != 200:
                 abort(400)

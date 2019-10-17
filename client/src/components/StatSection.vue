@@ -2,33 +2,41 @@
     <div class="stat-page">
         <app-search-bar 
             @gotTrack="Track = $event; init = true;"
-            @gotTrackAnal="TrackAnal = $event"
+            @gotTrackID="src = 'https://open.spotify.com/embed/track/' + $event"
+            @gotAlbumID="playlist_src = 'https://open.spotify.com/embed/album/' + $event"
+            @gotTrackAnal="TrackAnal = $event; getLoudness();"
             @gotTrackFeatures="TrackFeatures = $event"
             @gotAlbumImg="AlbumUrl = $event"
             @gotAlbum="Album = $event"
             @gotArtist="Artist = $event"
+            @gotTopTracks="TopTracks = $event"
             ></app-search-bar>
         <br>
-        <div v-if="init" id="tracksection" class="container row m-auto">
+        <div v-if="init" id="tracksection" class="row m-auto">
             <div class="col-md-6">
                 <div class="panel col-md-12">
                     <div class="row m-auto pt-3 trackheader">
                         <div class="col-lg-12 col-md-12 col-sm-12">
-                            <h2 ><ion-icon name="musical-notes"></ion-icon> Track: </h2>
+                            <h2 ><MusicalNotes class="icon"></MusicalNotes> Track: </h2>
                         </div>
                     </div>
                     <div class="row m-auto pt-3">
-                        <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-lg-7 col-md-5 col-sm-12">
                             <h4>{{ Track.name }} <span class="explicit" v-if="Track.explicit">EXPLICIT</span> </h4>
-                            <h5 style="color: rgb(156, 156, 156);">
+                            <h5>
                                 <ul id="artistlist" class="p-0">
-                                    <li v-for="artist in Track.artists" :key="artist.name">{{ artist.name }}</li>
+                                    <li class="genres" v-for="artist in Track.artists" :key="artist.name">{{ artist.name }}</li>
                                 </ul>
                             </h5>
                         </div>
+                        <div class="col-lg-5 col-md-7 col-sm-12">
+                            <iframe :src="src" width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                            
+                        </div>
                     </div>
                     <div class="row m-auto pt-3">
-                        <div class="col-md-7 col-sm-12 p-0" style="transform: translateY(-4rem)">
+                        <div class="col-md-7 col-sm-12 p-0">
+                            
                             <div id="chart">
                                 <apexchart type=radar height=350 :options="chartOptions" :series="getTrackFeatures" />
                             </div>
@@ -77,7 +85,7 @@
                <div class="panel col-md-12">
                    <div class="row m-auto pt-3 trackheader">
                         <div class="col-lg-12 col-md-12 col-sm-12">
-                            <h2><ion-icon name="person"></ion-icon> Artist: </h2>
+                            <h2><Person class="icon"></Person> Artist: </h2>
                         </div>
                     </div>
                     <div class="row m-auto pt-3">
@@ -89,50 +97,43 @@
                         <div class="col-md-6 col-sm-12 p-0">
                             <div class="container">
                                 <img class="img-fluid shadow " :src="Artist.images[1].url"> 
+                                <div class="container pt-3">
+                                    <h5>Popularity: {{ Artist.popularity }}</h5>
+                                    <h5>Followers: {{ Artist.followers.total }}</h5>
+                                    <h5>Genres: </h5>
+                                    <ul>
+                                        <li class="genres" v-for="genre in Artist.genres" :key="genre">{{ genre }}</li>
+                                    </ul>         
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6 col-sm-12">
-                            <div class="col-md-3 col-sm-12 p-0">
-                                <div class="container p-0">
-                                    <table class="table table-borderless text-left">
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row">Popularity</th>
-                                                <td>{{ Artist.popularity }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">Followers</th>
-                                                <td>{{ Artist.followers.total }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">Genres</th>
-                                                <td>
-                                                    <ul class="list-group">
-                                                        <li v-for="genre in Artist.genres" :key="genre">{{ genre }}</li>
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                            <h5>Top tracks by popularity</h5>
+                            <h5>(United States)</h5>
+                            <div id="chart2">
+                                <apexchart type=bar height=350 :options="getBarGraphOptions" :series="getTopTracks" />
                             </div>
                         </div>
                     </div>
                </div>
             </div>
         </div>
-        
-        <div v-if="init" class="container row m-auto pt-4">
-            <div class="col-md-12 col-sm-12">
-                <h2 ><ion-icon name="disc"></ion-icon> Album: </h2>
+
+        <div v-if="init" id="chart3" class="row m-auto">
+            <div class="col-md-12">
+                <h2 class="m-0"><Volume class="icon"></Volume> Track Volume: </h2>
+                <apexchart type=area height=300 :options="loudnessOptions" :series="getLoudnessSeries" />
             </div>
         </div>
-        <div v-if="init" id="artist" class="container row m-auto pt-2">
-            <div class="col-md-3 col-sm-12 p-0">
-                <div class="container">
-                    <h4>{{ Artist.name }}</h4>
-                    <img class="img-fluid shadow " :src="AlbumUrl">
-                </div>
+        
+        <div v-if="init" class="row m-auto">
+            <div class="col-md-12 col-sm-12">
+                <h2 ><Disc class="icon"></Disc> Album: </h2>
+            </div>
+        </div>
+        <div v-if="init" id="artist" class="row m-auto pt-2 pb-2">
+            <div class="col-md-12 col-sm-12">
+                <iframe id="albumWidget" :src="playlist_src" width="300" height="390" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
             </div>
         </div>
     </div>
@@ -141,12 +142,20 @@
 <script>
 import SearchBar from './SearchBar.vue'
 import VueApexCharts from 'vue-apexcharts'
+import MusicalNotes from 'vue-ionicons/dist/md-musical-notes.vue'
+import Disc from 'vue-ionicons/dist/md-disc.vue'
+import Person from 'vue-ionicons/dist/md-person.vue'
+import Volume from 'vue-ionicons/dist/md-volume-high'
 export default {
     data(){
         return{
             init: false,
+            src: 'https://open.spotify.com/embed/track/2t8yVaLvJ0RenpXUIAC52d',
+            playlist_src: 'https://open.spotify.com/embed/album/',
+            TrackID: '',
             Track: {},
             Artist: {},
+            TopTracks: {},
             Album: {},
             AlbumUrl: '',
             TrackAnal: {},
@@ -158,22 +167,114 @@ export default {
                     max: 1,
                     min: 0
                 },
+                stroke: {
+                    colors: ['rgb(54, 199, 110)']
+                },
+                fill: {
+                    colors: ['#36C76E'],
+                    opacity: 0.5
+                },
+                markers: {
+                    colors: ['rgb(54, 199, 110)'],
+                },
                 tooltip:{
                     theme: 'dark'
                 },
                 chart:{
                     toolbar:{
                         show: false
+                    },
+                    offsetY: -40
+                },
+                radar:{
+                    polygons:{
+                        strokeColors: 'rgb(54, 199, 110)',
+                        connectColors: 'rgb(54, 199, 110)'
                     }
                 }
-            }
+            },
+            loudness: [],
+            loudnessOptions: {
+                grid: {
+                    yaxis: {
+                        lines: {
+                            show: false
+                        }
+                    }
+                },
+                chart: {
+                    stacked: false,
+                    zoom: {
+                        type: 'x',
+                        enabled: true,
+                        autoScaleYaxis: true
+                    },
+                    toolbar: {
+                        autoSelected: 'zoom'
+                    }
+                },
+                plotOptions: {
+                    line: {
+                        curve: 'smooth',
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    width: 2,
+                    colors: ['rgb(54, 199, 110)']
+                },
+                markers: {
+                    size: 0,
+                    style: 'full',
+                },
+                fill: {
+                    type: 'solid',
+                    opacity: 0
+                },
+                yaxis: {
+                    axisBorder: {
+                        show: false
+                    },
+                    title: {
+                        text: 'Loudness (dB)'
+                    },
+                },
+                xaxis: {
+                    type: 'numeric',
+                    title: {
+                        text: 'Time (seconds)'
+                    }
+                },
+                tooltip: {
+                    
+                }
+            },
             
         }
     },
+    methods: {
+        getLoudness(){
+            this.loudness = []
+            let i;
+            for(i = 0; i < this.TrackAnal.segments.length; i++) {
+                var value = [this.TrackAnal.segments[i].start, this.TrackAnal.segments[i].loudness_max];
+                this.loudness.push(value);
+            }
+            //console.log(this.loudness);
+        },
+    },
     computed:{
+        getLoudnessSeries(){
+            return [{
+                name: 'Loudness',
+                data: this.loudness
+            }]
+        },
         getTrackFeatures(){
             return [{
-                name: 'Series 1',
+                name: 'Value',
                 data: [
                         this.TrackFeatures.acousticness,
                         this.TrackFeatures.energy,
@@ -183,6 +284,81 @@ export default {
                         this.TrackFeatures.speechiness,
                         this.TrackFeatures.valence]
             }] 
+        },
+        getTopTracks(){
+            var toptracks = [];
+            var i;
+            for(i = 0; i < this.TopTracks.tracks.length; i++){
+                toptracks.push(this.TopTracks.tracks[i].popularity)
+            }
+            return [{
+                name: 'Series 1',
+                data: toptracks
+            }]
+        },
+        getBarGraphOptions(){
+            var toptracknames = [];
+            var i;
+            for(i = 0; i < this.TopTracks.tracks.length; i++){
+                toptracknames.push(this.TopTracks.tracks[i].name)
+            }
+            return{
+                chart:{
+                    offsetX: -50,
+                    offsetY: -30,
+                    toolbar:{
+                        show: false
+                    }
+                },
+                colors: ['rgb(54, 199, 110)'],
+                grid:{
+                    show: false
+                },
+                markers:{
+                    colors:['rgb(20,20,20)']
+                },
+                plotOptions: {
+                    bar: {
+                        barHeight: '90%',
+                        horizontal: true,
+                        dataLabels: {
+                            position: 'bottom'
+                        },
+                        columnWidth: '90%'
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    textAnchor: 'start',
+                    style:{
+                        color: ['#fff']
+                    },
+                    formatter: function (val, opt) {
+                        return opt.w.globals.labels[opt.dataPointIndex] + ":  " + val
+                    },
+                    offsetX: 0,
+                    dropShadow: {
+                        enabled: true
+                    }
+                },
+                xaxis: {
+                    categories: toptracknames,
+                    labels:{
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    },
+                   
+                },
+                yaxis: {
+                    labels: {
+                        show: false
+                    },
+                    min: 0,
+                    max: 100
+                },
+            }
         },
         getDuration(){
             var millis = this.Track.duration_ms;
@@ -219,16 +395,19 @@ export default {
                     return 'A♯'
                 case (11):
                     return 'B'
+                default:
+                    return ''
             }
         }
     },
     components:{
         appSearchBar: SearchBar,
-        apexchart: VueApexCharts
+        apexchart: VueApexCharts,
+        MusicalNotes,
+        Disc,
+        Person,
+        Volume
     },
-    mounted(){
-        
-    }
 }
 </script>
 
@@ -239,6 +418,10 @@ export default {
 
     h4{
         color: #fff;
+    }
+    
+    h5{
+        color: rgb(156, 156, 156);
     }
 
     h2{
@@ -251,6 +434,7 @@ export default {
 
     td, th{
         padding: 3px;
+        font-size: 20px;
     }
 
     .trackheader{
@@ -264,21 +448,24 @@ export default {
     }
 
 
-    #artistlist li{
+    .genres{
         float: left;
+        color: rgb(156, 156, 156);
     }
 
-    #artistlist li::after{
+    .genres::after{
         content: ', ';
         white-space: pre;
     }
 
-    #artistlist li:last-child::after{
+    .genres:last-child::after{
         content: ''
     }
 
     .artist img{
         border-radius: 50%;
+        height: 60%;
+        width: 60%;
     }
 
     .explicit{
@@ -308,12 +495,18 @@ export default {
 
     #artist{
         color: #fff;
-
     }
 
-    ion-icon{
+    .icon{
         vertical-align:text-bottom;
         font-size: 35px;
+        display: inline;
+        fill: rgb(54, 199, 110);
     }
+
+    iframe{
+        width: 100%;
+    }
+
 
 </style>

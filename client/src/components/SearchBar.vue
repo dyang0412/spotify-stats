@@ -1,8 +1,8 @@
 <template>
     <div class="search-bar">
         <div id="header" class="row">
-            <div class="col-md-12 text-center">
-                <h3>Spotify Stats <ion-icon name="stats"></ion-icon></h3>
+            <div class="col-md-12 text-center noselect">
+                <h3>Spotify Stats <StatsIcon id="StatsIcon" style="display: inline;"></StatsIcon></h3>
                 <p>All data provided by Spotify</p>
             </div>
         </div>
@@ -11,7 +11,7 @@
                 <div class="form-group">
                     <div class="input-group pt-3 mb-3">
                         <label for="inp" class="inp">
-                            <input type="text" id="inp" placeholder="&nbsp;" @keyup.enter="onSubmit" v-model="query">
+                            <input type="text" id="inp" placeholder="&nbsp;" @keyup.enter="onSubmit" v-model="query" required>
                             <span class="label">Search for a track</span>
                             <span class="border"></span>
                         </label>
@@ -42,6 +42,7 @@
 
 <script>
 import axios from 'axios';
+import StatsIcon from 'vue-ionicons/dist/md-stats.vue'
 export default {
     data() {
         return {
@@ -50,13 +51,16 @@ export default {
             results: []
         }
     },
+    components:{
+      StatsIcon : StatsIcon
+    },
     methods: {
         getToken() {
             const path = 'http://localhost:5000/auth';
             axios.get(path)
                 .then((res) => {
                     this.token = res.data.access_token;
-                    console.log('Access Token: ' + this.token)
+                    //console.log('Access Token: ' + this.token)
                 })
                 .catch((error) => {
                 // eslint-disable-next-line
@@ -67,8 +71,8 @@ export default {
             const path = 'http://localhost:5000/search';
             axios.post(path, payload)
                 .then((res) => {
-                    console.log('Query Sent: ' + this.query)
-                    console.log(res.data)
+                    //console.log('Query Sent: ' + this.query)
+                    //console.log(res.data)
                     this.results = res.data.tracks.items;
                 })
                 .catch((error) => {
@@ -83,32 +87,36 @@ export default {
                 token: this.token
             };
             this.search(payload);
+            var list = this.$el.querySelector('#search-results');
+            list.scrollTop = 0;
         },
 
         onSongSelect(track, trackid, artistid, artistname, albumid, albumurl){
             // Get Track Info
+            this.$emit('gotTrackID', trackid)
             this.$emit('gotTrack', track)
             this.$emit('gotAlbumImg', albumurl)
-            console.log('Track ID: ' + trackid);
+            this.$emit('gotAlbumID', albumid)
+            //console.log('Track ID: ' + trackid);
             const trackpath1 = 'http://localhost:5000/get-trackAnal';
-            console.log('Looking up track...')
+            //console.log('Looking up track...')
             const trackpayload1 = { trackID: trackid, token: this.token}
             axios.post(trackpath1, trackpayload1)
                 .then((res) => {
                     this.$emit('gotTrackAnal', res.data)
-                    console.log(res.data)
+                    //console.log(res.data)
                 })
                 .catch((error) => {
                 console.log(error);
             });
 
             const trackpath2 = 'http://localhost:5000/get-trackFeatures';
-            console.log('Looking up track features...')
+            //console.log('Looking up track features...')
             const trackpayload2 = { trackID: trackid, token: this.token}
             axios.post(trackpath2, trackpayload2)
                 .then((res) => {
                     this.$emit('gotTrackFeatures', res.data)
-                    console.log(res.data)
+                    //console.log(res.data)
                 })
                 .catch((error) => {
                 console.log(error);
@@ -117,12 +125,24 @@ export default {
             //Get Artist Info
 
             const artistpath = 'http://localhost:5000/get-artist';
-            console.log('Looking up artist...')
+            //console.log('Looking up artist...')
             const artistpayload = { artistID: artistid, token: this.token}
             axios.post(artistpath, artistpayload)
                 .then((res) => {
                     this.$emit('gotArtist', res.data)
-                    console.log(res.data)
+                    //console.log(res.data)
+                })
+                .catch((error) => {
+                console.log(error);
+            });
+
+            const toptrackspath = 'http://localhost:5000/get-artistTopTracks';
+            //console.log('Looking up artist...')
+            const toptrackspayload = { artistID: artistid, token: this.token}
+            axios.post(toptrackspath, toptrackspayload)
+                .then((res) => {
+                    this.$emit('gotTopTracks', res.data)
+                    //console.log(res.data)
                 })
                 .catch((error) => {
                 console.log(error);
@@ -131,12 +151,12 @@ export default {
             //Get Album Info
 
             const albumpath = 'http://localhost:5000/get-album';
-            console.log('Looking up album...')
+            //console.log('Looking up album...')
             const albumpayload = { albumID: albumid, token: this.token}
             axios.post(albumpath, albumpayload)
                 .then((res) => {
                     this.$emit('gotAlbum',res.data)
-                    console.log(res.data)
+                    //console.log(res.data)
                 })
                 .catch((error) => {
                 console.log(error);
@@ -228,7 +248,7 @@ export default {
     }
 
     #search-results{
-        height: 75vh;
+        height: 77vh;
         overflow-y: scroll;
     }
 
@@ -262,9 +282,19 @@ export default {
         box-shadow:  0 0 6px rgba(0, 0, 0, 0.5);
     }
 
-    ion-icon{
+    #StatsIcon{
         font-size: 30px;
         vertical-align:top
+    }
+
+    .noselect {
+        -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Old versions of Firefox */
+                -ms-user-select: none; /* Internet Explorer/Edge */
+                    user-select: none; /* Non-prefixed version, currently
+                                        supported by Chrome, Opera and Firefox */
     }
 
     html,

@@ -20,7 +20,7 @@ export default {
 *{
     position: relative;
     margin: 0;
-    font-family: 'Raleway', sans-serif;
+
     box-sizing: border-box
   }
 
