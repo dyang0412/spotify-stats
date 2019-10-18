@@ -128,7 +128,7 @@
         
         <div v-if="init" class="row m-auto">
             <div class="col-md-12 col-sm-12">
-                <h2 ><Disc class="icon"></Disc> Album: </h2>
+                <h2><Disc class="icon"></Disc> Album: </h2>
             </div>
         </div>
         <div v-if="init" id="artist" class="row m-auto pt-2 pb-2">
@@ -155,10 +155,17 @@ export default {
             TrackID: '',
             Track: {},
             Artist: {},
-            TopTracks: {},
+            TopTracks: {
+                tracks: []
+            },
             Album: {},
             AlbumUrl: '',
-            TrackAnal: {},
+            TrackAnal: {
+                track: {
+                    key: 0,
+                    mode: 0
+                }
+            },
             TrackFeatures: {},
             chartOptions: {
                 labels: ['Acousticness','Energy','Danceability','Instrumentalness','Liveness','Speechiness','Valence'],
@@ -273,7 +280,8 @@ export default {
             }]
         },
         getTrackFeatures(){
-            return [{
+            if(Object.keys(this.TrackFeatures).length != 0) {
+                return [{
                 name: 'Value',
                 data: [
                         this.TrackFeatures.acousticness,
@@ -283,7 +291,14 @@ export default {
                         this.TrackFeatures.liveness,
                         this.TrackFeatures.speechiness,
                         this.TrackFeatures.valence]
-            }] 
+                }] 
+            } else {
+                return [{
+                    name: 'Value',
+                    data: []
+                }]
+            }
+            
         },
         getTopTracks(){
             var toptracks = [];
@@ -292,7 +307,7 @@ export default {
                 toptracks.push(this.TopTracks.tracks[i].popularity)
             }
             return [{
-                name: 'Series 1',
+                name: 'Popularity',
                 data: toptracks
             }]
         },
@@ -370,33 +385,37 @@ export default {
             return (this.TrackAnal.track.mode > 0 ? 'Major' : 'Minor')
         },
         getKey(){
-            switch(this.TrackAnal.track.key){
-                case (0):
-                    return 'C'
-                case (1):
-                    return 'C♯'
-                case (2):
-                    return 'D'
-                case (3):
-                    return 'D♯'
-                case (4):
-                    return 'E'
-                case (5):
-                    return 'F'
-                case (6):
-                    return 'F♯'
-                case (7):
-                    return 'G'
-                case (8):
-                    return 'G♯'
-                case (9):
-                    return 'A'
-                case (10):
-                    return 'A♯'
-                case (11):
-                    return 'B'
-                default:
-                    return ''
+            if(Object.keys(this.TrackAnal.length != 0) && typeof this.TrackAnal != 'undefined') {
+                switch(this.TrackAnal.track.key){
+                    case (0):
+                        return 'C'
+                    case (1):
+                        return 'C♯'
+                    case (2):
+                        return 'D'
+                    case (3):
+                        return 'D♯'
+                    case (4):
+                        return 'E'
+                    case (5):
+                        return 'F'
+                    case (6):
+                        return 'F♯'
+                    case (7):
+                        return 'G'
+                    case (8):
+                        return 'G♯'
+                    case (9):
+                        return 'A'
+                    case (10):
+                        return 'A♯'
+                    case (11):
+                        return 'B'
+                    default:
+                        return ''
+                }
+            } else {
+                return ''
             }
         }
     },
