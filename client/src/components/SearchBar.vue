@@ -56,7 +56,7 @@ export default {
     },
     methods: {
         getToken() {
-            const path = 'http://localhost:5000/auth';
+            const path = '//spotstats.cosinic.com/auth';
             axios.get(path)
                 .then((res) => {
                     this.token = res.data.access_token;
@@ -68,7 +68,7 @@ export default {
             });
         },
         search(payload) {
-            const path = 'http://localhost:5000/search';
+            const path = '//spotstats.cosinic.com/search';
             axios.post(path, payload)
                 .then((res) => {
                     //console.log('Query Sent: ' + this.query)
@@ -98,7 +98,7 @@ export default {
             this.$emit('gotAlbumImg', albumurl)
             this.$emit('gotAlbumID', albumid)
             //console.log('Track ID: ' + trackid);
-            const trackpath1 = 'http://localhost:5000/get-trackAnal';
+            const trackpath1 = '//spotstats.cosinic.com/get-trackAnal';
             //console.log('Looking up track...')
             const trackpayload1 = { trackID: trackid, token: this.token}
             axios.post(trackpath1, trackpayload1)
@@ -110,7 +110,7 @@ export default {
                 console.log(error);
             });
 
-            const trackpath2 = 'http://localhost:5000/get-trackFeatures';
+            const trackpath2 = '//spotstats.cosinic.com/get-trackFeatures';
             //console.log('Looking up track features...')
             const trackpayload2 = { trackID: trackid, token: this.token}
             axios.post(trackpath2, trackpayload2)
@@ -124,7 +124,7 @@ export default {
 
             //Get Artist Info
 
-            const artistpath = 'http://localhost:5000/get-artist';
+            const artistpath = '//spotstats.cosinic.com/get-artist';
             //console.log('Looking up artist...')
             const artistpayload = { artistID: artistid, token: this.token}
             axios.post(artistpath, artistpayload)
@@ -136,7 +136,7 @@ export default {
                 console.log(error);
             });
 
-            const toptrackspath = 'http://localhost:5000/get-artistTopTracks';
+            const toptrackspath = '//spotstats.cosinic.com/get-artistTopTracks';
             //console.log('Looking up artist...')
             const toptrackspayload = { artistID: artistid, token: this.token}
             axios.post(toptrackspath, toptrackspayload)
@@ -150,7 +150,7 @@ export default {
 
             //Get Album Info
 
-            const albumpath = 'http://localhost:5000/get-album';
+            const albumpath = '//spotstats.cosinic.com/get-album';
             //console.log('Looking up album...')
             const albumpayload = { albumID: albumid, token: this.token}
             axios.post(albumpath, albumpayload)
