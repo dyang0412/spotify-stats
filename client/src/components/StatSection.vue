@@ -13,7 +13,7 @@
             ></app-search-bar>
         <br>
         <div v-if="init" id="tracksection" class="row m-auto">
-            <div class="col-md-6">
+            <div class="col-lg-6 col-md-12 col-sm-12 pt-2">
                 <div class="panel col-md-12">
                     <div class="row m-auto pt-3 trackheader">
                         <div class="col-lg-12 col-md-12 col-sm-12">
@@ -43,6 +43,7 @@
                         </div>
                         <div class="col-md-5 col-sm-12">
                             <div class="container p-0">
+                                <h5 class="text-center">Stats</h5>
                                 <table class="table table-borderless text-left">
                                     <tbody>
                                         <tr>
@@ -81,7 +82,7 @@
                 </div>
             </div>
 
-           <div class="artist col-md-6 col-sm-12">
+            <div class="artist col-lg-6 col-md-12 col-sm-12 pt-2">
                <div class="panel col-md-12">
                    <div class="row m-auto pt-3 trackheader">
                         <div class="col-lg-12 col-md-12 col-sm-12">
@@ -96,10 +97,10 @@
                     <div class="row m-auto pt-3">
                         <div class="col-md-6 col-sm-12 p-0">
                             <div class="container">
-                                <img class="img-fluid shadow " :src="Artist.images[1].url"> 
+                                <img class="img-fluid shadow " :src="Artist.images ? Artist.images[1].url : ''">
                                 <div class="container pt-3">
                                     <h5>Popularity: {{ Artist.popularity }}</h5>
-                                    <h5>Followers: {{ Artist.followers.total }}</h5>
+                                    <h5>Followers: {{ Artist.followers ? Number(Artist.followers.total).toLocaleString() : ''}}</h5>
                                     <h5>Genres: </h5>
                                     <ul>
                                         <li class="genres" v-for="genre in Artist.genres" :key="genre">{{ genre }}</li>
@@ -454,6 +455,10 @@ export default {
     td, th{
         padding: 3px;
         font-size: 20px;
+    }
+
+    td{
+        text-align: right
     }
 
     .trackheader{
