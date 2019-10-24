@@ -8,7 +8,7 @@
         <div id="searchbar" class="search-bar fixed-top">
             <div id="header" class="row">
                 <div class="col-md-12 text-center noselect">
-                    <h3>Spotify Stats <StatsIcon id="StatsIcon" style="display: inline;"></StatsIcon></h3>
+                    <h3>Spotify Stats <StatsIcon id="StatsIcon" style="display: inline"></StatsIcon></h3>
                     <p>All data provided by Spotify</p>
                 </div>
             </div>

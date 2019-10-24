@@ -83,7 +83,7 @@
                 </div>
             </div>
 
-            <div class="artist col-lg-6 col-md-12 col-sm-12 pt-2">
+            <div class="artist col-lg-6 col-md-12 col-sm-12">
                <div class="panel col-md-12">
                    <div class="row m-auto pt-3 trackheader">
                         <div class="col-lg-12 col-md-12 col-sm-12">
