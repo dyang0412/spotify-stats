@@ -1,38 +1,45 @@
 <template>
-    <div class="search-bar">
-        <div id="header" class="row">
-            <div class="col-md-12 text-center noselect">
-                <h3>Spotify Stats <StatsIcon id="StatsIcon" style="display: inline;"></StatsIcon></h3>
-                <p>All data provided by Spotify</p>
+    <div id="searchcomponent">
+        <div class="navbar fixed-top navbar-expand navbar-dark">
+            <button @click="collapse" id="sidebarCollapse" class="btn btn-outline-success">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>   
+        <div id="searchbar" class="search-bar fixed-top">
+            <div id="header" class="row">
+                <div class="col-md-12 text-center noselect">
+                    <h3>Spotify Stats <StatsIcon id="StatsIcon" style="display: inline;"></StatsIcon></h3>
+                    <p>All data provided by Spotify</p>
+                </div>
             </div>
-        </div>
-        <div id="input" class="row">
-            <div class="col-md-12 text-center">
-                <div class="form-group">
-                    <div class="input-group pt-3 mb-3">
-                        <label for="inp" class="inp">
-                            <input type="text" id="inp" placeholder="&nbsp;" @keyup.enter="onSubmit" v-model="query" required>
-                            <span class="label">Search for a track</span>
-                            <span class="border"></span>
-                        </label>
-                        <button @click="onSubmit" class="btn btn-outline-success w-75">Search</button>
+            <div id="input" class="row">
+                <div class="col-md-12 text-center">
+                    <div class="form-group">
+                        <div class="input-group pt-3 mb-3">
+                            <label for="inp" class="inp">
+                                <input type="text" id="inp" placeholder="&nbsp;" @keyup.enter="onSubmit" v-model="query" required>
+                                <span class="label">Search for a track</span>
+                                <span class="border"></span>
+                            </label>
+                            <button @click="onSubmit" class="btn btn-outline-success w-75">Search</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="search-results" class="row custom-scrollbar">
-            <div class="col-md-12">
-                <div class="row pb-2 pt-2 border-bottom border-light trackResult" 
-                    v-for="(track,index) in results" 
-                    :key="index" 
-                    @click="onSongSelect(track,track.id, track.artists[0].id, track.artists[0].name, track.album.id, track.album.images[1].url)">
-                    <div class="col-md-3 pl-2">
-                        <img :src="track.album.images[2].url">
-                    </div>
-                    <div class="col-md-9">
-                        <p>{{track.name}}</p>
-                        <p id="album">{{track.album.name}}</p>
-                        <ul id="artistlist"><li v-for="(artist, i) in track.artists" :key="i" class="artist">{{artist.name}}</li></ul>
+            <div id="search-results" class="row custom-scrollbar">
+                <div class="col-md-12">
+                    <div class="row pb-2 pt-2 border-bottom border-light trackResult" 
+                        v-for="(track,index) in results" 
+                        :key="index" 
+                        @click="onSongSelect(track,track.id, track.artists[0].id, track.artists[0].name, track.album.id, track.album.images[1].url)">
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-3 pl-2">
+                            <img :src="track.album.images[2].url">
+                        </div>
+                        <div class="col-lg-9 col-md-9 col-sm-9 col-9">
+                            <p>{{track.name}}</p>
+                            <p id="album">{{track.album.name}}</p>
+                            <ul id="artistlist"><li v-for="(artist, i) in track.artists" :key="i" class="artist">{{artist.name}}</li></ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -109,7 +116,6 @@ export default {
                 .catch((error) => {
                 console.log(error);
             });
-
             const trackpath2 = '//spotstats.cosinic.com/get-trackFeatures';
             //console.log('Looking up track features...')
             const trackpayload2 = { trackID: trackid, token: this.token}
@@ -123,7 +129,6 @@ export default {
             });
 
             //Get Artist Info
-
             const artistpath = '//spotstats.cosinic.com/get-artist';
             //console.log('Looking up artist...')
             const artistpayload = { artistID: artistid, token: this.token}
@@ -149,7 +154,6 @@ export default {
             });
 
             //Get Album Info
-
             const albumpath = '//spotstats.cosinic.com/get-album';
             //console.log('Looking up album...')
             const albumpayload = { albumID: albumid, token: this.token}
@@ -163,6 +167,10 @@ export default {
             });
 
             this.$emit('createChart');
+        },
+        collapse(){
+            $('#searchbar').toggleClass('active');
+            this.$emit('collapse');
         }
     },
         
@@ -210,16 +218,33 @@ export default {
         color: rgb(156, 156, 156);
     }
 
+    .navbar { 
+        padding: 0;
+        background-color:rgba(0, 0, 0);
+        z-index: 2;
+    }
+
+    #sidebarCollapse { 
+        margin: 4px;
+    }
+
     .search-bar{
-        height: 100%;
-        width:300px;
         position: fixed;
-        z-index: 1;
         top: 0;
         left: 0;
+        padding-top: 0;
+        width:300px;
         background-color: rgb(36, 36, 36);
+        overflow: hidden;
         overflow-x: hidden;
+        margin-top: 40px;
+        height: 100%;
+        z-index: 1;
+        transition: all 0.3s;
+    }
 
+    .active{
+        margin-left: -300px;
     }
     
     .row{
@@ -248,7 +273,7 @@ export default {
     }
 
     #search-results{
-        height: 77vh;
+        height: calc(77vh - 40px);
         overflow-y: scroll;
     }
 
@@ -386,5 +411,19 @@ export default {
     :-ms-input-placeholder { /* Internet Explorer 10+ */
         color:    transparent;
     }
+
+    /*---Media Queries---*/
+@media (max-width: 992px) {
+   
+}
+
+@media (max-width: 768px) {
+    
+}
+
+@media (max-width: 576px) {
+
+    
+}
             
 </style>

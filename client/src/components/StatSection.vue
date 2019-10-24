@@ -1,6 +1,6 @@
 <template>
     <div class="stat-page">
-        <app-search-bar 
+        <app-search-bar
             @gotTrack="Track = $event; init = true;"
             @gotTrackID="src = 'https://open.spotify.com/embed/track/' + $event"
             @gotAlbumID="playlist_src = 'https://open.spotify.com/embed/album/' + $event"
@@ -10,10 +10,11 @@
             @gotAlbum="Album = $event"
             @gotArtist="Artist = $event"
             @gotTopTracks="TopTracks = $event"
+            @collapse="collapse()"
             ></app-search-bar>
         <br>
         <div v-if="init" id="tracksection" class="row m-auto">
-            <div class="col-lg-6 col-md-12 col-sm-12 pt-2">
+            <div class="col-lg-6 col-md-12 col-sm-12">
                 <div class="panel col-md-12">
                     <div class="row m-auto pt-3 trackheader">
                         <div class="col-lg-12 col-md-12 col-sm-12">
@@ -272,6 +273,9 @@ export default {
             }
             //console.log(this.loudness);
         },
+        collapse(){
+            $('.stat-page').toggleClass('active');
+        }
     },
     computed:{
         getLoudnessSeries(){
@@ -320,8 +324,6 @@ export default {
             }
             return{
                 chart:{
-                    offsetX: -50,
-                    offsetY: -30,
                     toolbar:{
                         show: false
                     }
@@ -432,6 +434,10 @@ export default {
 </script>
 
 <style scoped>
+    .active {
+        padding-left: 0 !important;
+    }
+
     table{
         color:rgb(173, 173, 173)
     }
@@ -502,9 +508,12 @@ export default {
 
     .stat-page{
         background-color: rgb(15, 15, 15);
-        min-height: 100vh;
+        min-height: 100%;
         min-width: 100%;
+        max-width: calc(100vw - 300px);
         padding-left: 300px;
+        padding-top: 40px;
+        transition: all 0.3s;
     }
 
     #track{
@@ -530,6 +539,23 @@ export default {
 
     iframe{
         width: 100%;
+    }
+
+    /*---Media Queries---*/
+    @media (max-width: 992px) {
+    
+    }
+
+    @media (max-width: 768px) {
+        .stat-page{
+            padding-left: 0;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .stat-page{
+            padding-left: 0;
+        }
     }
 
 
