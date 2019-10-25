@@ -12,20 +12,22 @@
                     <p>All data provided by Spotify</p>
                 </div>
             </div>
-            <div id="input" class="row">
-                <div class="col-md-12 text-center">
-                    <div class="form-group">
-                        <div class="input-group pt-3 mb-3">
-                            <label for="inp" class="inp">
-                                <input type="text" id="inp" placeholder="&nbsp;" @keyup.enter="onSubmit" v-model="query" required>
-                                <span class="label">Search for a track</span>
-                                <span class="border"></span>
-                            </label>
-                            <button @click="onSubmit" class="btn btn-outline-success w-75">Search</button>
+            <transition name="slide" appear>
+                <div id="input" class="row">
+                    <div class="col-md-12 text-center">
+                        <div class="form-group">
+                            <div class="input-group pt-3 mb-3">
+                                <label for="inp" class="inp">
+                                    <input type="text" id="inp" placeholder="&nbsp;" @keyup.enter="onSubmit" v-model="query" required>
+                                    <span class="label">Search for a track</span>
+                                    <span class="border"></span>
+                                </label>
+                                <button @click="onSubmit" class="btn btn-outline-success w-75">Search</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </transition>
             <div id="search-results" class="row custom-scrollbar">
                 <div class="col-md-12">
                     <div class="row pb-2 pt-2 border-bottom border-light trackResult" 
@@ -50,6 +52,7 @@
 <script>
 import axios from 'axios';
 import StatsIcon from 'vue-ionicons/dist/md-stats.vue'
+import Search from 'vue-ionicons/dist/md-search'
 export default {
     data() {
         return {
@@ -59,10 +62,12 @@ export default {
         }
     },
     components:{
-      StatsIcon : StatsIcon
+      StatsIcon : StatsIcon,
+      Search
     },
     methods: {
         getToken() {
+            //const path = 'http://localhost:5000/auth';
             const path = '//spotstats.cosinic.com/auth';
             axios.get(path)
                 .then((res) => {
@@ -75,6 +80,7 @@ export default {
             });
         },
         search(payload) {
+            //const path = 'http://localhost:5000/search';
             const path = '//spotstats.cosinic.com/search';
             axios.post(path, payload)
                 .then((res) => {
@@ -99,12 +105,18 @@ export default {
         },
 
         onSongSelect(track, trackid, artistid, artistname, albumid, albumurl){
+            var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+            if(width <= 1310){
+                this.collapse();
+            }
+
             // Get Track Info
             this.$emit('gotTrackID', trackid)
             this.$emit('gotTrack', track)
             this.$emit('gotAlbumImg', albumurl)
             this.$emit('gotAlbumID', albumid)
             //console.log('Track ID: ' + trackid);
+            //const trackpath1 = 'http://localhost:5000/get-trackAnal';
             const trackpath1 = '//spotstats.cosinic.com/get-trackAnal';
             //console.log('Looking up track...')
             const trackpayload1 = { trackID: trackid, token: this.token}
@@ -116,6 +128,7 @@ export default {
                 .catch((error) => {
                 console.log(error);
             });
+            //const trackpath2 = 'http://localhost:5000/get-trackFeatures';
             const trackpath2 = '//spotstats.cosinic.com/get-trackFeatures';
             //console.log('Looking up track features...')
             const trackpayload2 = { trackID: trackid, token: this.token}
@@ -129,6 +142,7 @@ export default {
             });
 
             //Get Artist Info
+            //const artistpath = 'http://localhost:5000/get-artist';
             const artistpath = '//spotstats.cosinic.com/get-artist';
             //console.log('Looking up artist...')
             const artistpayload = { artistID: artistid, token: this.token}
@@ -141,6 +155,7 @@ export default {
                 console.log(error);
             });
 
+            //const toptrackspath = 'http://localhost:5000/get-artistTopTracks';
             const toptrackspath = '//spotstats.cosinic.com/get-artistTopTracks';
             //console.log('Looking up artist...')
             const toptrackspayload = { artistID: artistid, token: this.token}
@@ -154,6 +169,7 @@ export default {
             });
 
             //Get Album Info
+            //const albumpath = 'http://localhost:5000/get-album';
             const albumpath = '//spotstats.cosinic.com/get-album';
             //console.log('Looking up album...')
             const albumpayload = { albumID: albumid, token: this.token}
@@ -411,6 +427,32 @@ export default {
     :-ms-input-placeholder { /* Internet Explorer 10+ */
         color:    transparent;
     }
+
+.slide-enter {
+    opacity: 0;
+}
+
+.slide-enter-active {
+    animation: slide-in 1s ease-out forwards;
+    transition: opacity 0.75s;
+}
+
+.fade-enter {
+    opacity: 0; 
+}
+
+.fade-enter-active {
+    transition: opacity 1s;
+}
+
+@keyframes slide-in{
+    from{
+        transform:  translateY(50px);
+    }
+    to{
+        transform: translateY(0);
+    }
+}
 
     /*---Media Queries---*/
 @media (max-width: 992px) {
